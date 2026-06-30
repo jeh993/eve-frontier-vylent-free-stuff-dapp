@@ -50,10 +50,19 @@ const ITEMS = await Promise.all(prices.map(async row => {
     };
 }));
 
-refreshCredits();
 renderTabs();
-const inventoryState = await getInventoryState();
+credits.innerHTML = `CREDITS: <a href="#" id="connect-credits">[CONNECT WALLET]</a>`;
+
+const inventoryState = await getPublicInventoryState();
 render(ITEMS, inventoryState);
+
+document.getElementById("connect-credits").addEventListener("click", async (event) => {
+    event.preventDefault();
+    await refreshCredits();
+
+    const inventoryState = await getInventoryState();
+    render(ITEMS, inventoryState);
+});
 
 function terminal(message) {
     output.style.display = "block";
@@ -261,6 +270,17 @@ async function refreshCredits() {
     const balance = await getCreditBalanceForCharacter(characterId);
 
     credits.innerHTML = `CREDITS: ${balance}`;
+}
+
+async function getPublicInventoryState() {
+    const storeInventory = await getStoreInventoryItems(STORAGE_UNIT_ID);
+
+    return {
+        storeByType: new Map(
+            storeInventory.map(i => [i.typeId, i])
+            ),
+        characterByType: new Map(),
+    }
 }
 
 async function getInventoryState() {
