@@ -1,0 +1,19 @@
+body {
+    background: black;
+    color: #00ff66;
+    font-family: monospace;
+    padding: 2rem;
+}
+
+button {
+    background: #111;
+    color: #00ff66;
+    border: 1px solid #00ff66;
+    padding: 1rem;
+    cursor: pointer;
+}
+
+pre {
+    margin-top: 2rem;
+    white-space: pre-wrap;
+}

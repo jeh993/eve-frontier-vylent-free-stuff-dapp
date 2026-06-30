@@ -1,0 +1,18 @@
+{
+  "name": "dapp",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@evefrontier/dapp-kit": "^0.1.9",
+    "@mysten/sui": "^2.16.2",
+    "@mysten/wallet-standard": "^0.20.3",
+    "vite": "^8.0.11"
+  }
+}
