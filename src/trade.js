@@ -33,7 +33,7 @@ document.getElementById("sell-tab").addEventListener("click", async () => {
 
 const prices = await getPricesForStorageUnit(STORAGE_UNIT_ID);
 
-const TYPE_INDEX_URL = "/public/types-index.json";
+const TYPE_INDEX_URL = `${import.meta.env.BASE_URL}types-index.json`;
 
 let typeIndexCache = null;
 
@@ -67,6 +67,7 @@ function render(items, inventoryState) {
             <span>AVAILABLE</span>
             <span>PRICE</span>
             <span>QTY</span>
+            <span>TOTAL</span>
             <span></span>
         </div>
 
@@ -93,15 +94,22 @@ function render(items, inventoryState) {
                 <div class="market-row">
                     <span>${item.name}</span>
                     <span>${available.toLocaleString()}</span>
-                    <span>${price}</span>
-
+                    <span>${price.toLocaleString()}</span>
+                    
                     <input
                         id="qty-${item.itemId}"
+                        data-item="${item.itemId}"
+                        data-price="${price}"
+                        class="qty-input"
                         type="number"
                         min="1"
                         max="${available}"
                         value="1"
                     />
+                    
+                    <span id="total-${item.itemId}">
+                        ${price.toLocaleString()}
+                    </span>
 
                     <a
                         href="#"
@@ -124,6 +132,17 @@ function render(items, inventoryState) {
             .forEach(link =>
                 link.addEventListener("click", sellItem));
     }
+
+    document.querySelectorAll(".qty-input").forEach(input => {
+        input.addEventListener("input", () => {
+            const itemId = Number(input.dataset.item);
+            const price = Number(input.dataset.price);
+            const quantity = Number(input.value || 0);
+
+            document.getElementById(`total-${itemId}`).textContent =
+                (price * quantity).toLocaleString();
+        });
+    });
 }
 
 async function buyItem(event) {

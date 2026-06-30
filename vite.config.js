@@ -1,14 +1,18 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 
-export default defineConfig({
-    base: "./dist/",
+export default defineConfig(({ command }) => ({
+    base:
+        command === "build"
+            ? "/eve-frontier-vylent-free-stuff-dapp/dist/"
+            : "/",
+
     build: {
         rollupOptions: {
             input: {
-                index: resolve(__dirname, "index.html"),
-                admin: resolve(__dirname, "admin.html"),
+                index: resolve(process.cwd(), "index.html"),
+                admin: resolve(process.cwd(), "admin.html"),
             },
         },
     },
-});
+}));
