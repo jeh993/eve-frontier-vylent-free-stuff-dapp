@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vylent's Outfitters - Best Viewed at 800x600</title>
+    <style>
+        body {
+            margin: 0;
+            background: #05000a url('/eve-frontier-vylent-free-stuff-dapp/assets/space2-0lMDhy6r.gif') repeat fixed;
+            color: #ffff66;
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+
+        a { color: #00ffff; }
+        a:visited { color: #ff66ff; }
+        a:hover { color: #ffff00; background: #cc0000; }
+
+        .page {
+            display: block;
+            padding: 6px;
+            min-height: 100vh;
+        }
+
+        .frame {
+            /*background: #12001f;*/
+            border: 5px ridge #9933ff;
+            box-shadow: inset 0 0 18px #000000;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .nav,
+        .ads {
+            display: none;
+        }
+
+        .frame-title {
+            background: #330066;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 3px;
+            border: 2px outset #cc99ff;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-family: 'Courier New', monospace;
+            font-size: 26px;
+            text-align: center;
+            margin: 10px 0 0;
+            color: #ffcc00;
+            text-shadow: 3px 3px #ff00ff, 5px 5px #000000;
+            letter-spacing: -2px;
+        }
+
+        .motto {
+            text-align: center;
+            font-size: 18px;
+            color: #00ffcc;
+            font-weight: bold;
+            margin: 8px 0 18px;
+        }
+
+        .blink {
+            animation: blink 0.8s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        marquee {
+            background: #ff00ff;
+            color: #000000;
+            font-weight: bold;
+            border: 3px inset #ffff00;
+            padding: 4px;
+            margin: 8px 0;
+        }
+
+        .section {
+            background: #000033;
+            border: 3px double #00ffff;
+            margin: 10px 0;
+            padding: 8px;
+        }
+
+        .section h2 {
+            margin: 0 0 10px;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            background: #000000;
+            padding: 5px;
+            border: 2px dashed #ffff00;
+        }
+
+        .kit-list, .junk-list, .features {
+            background: #1a0033;
+            border: 2px inset #6666ff;
+            padding: 10px 10px 10px 28px;
+            color: #ffffff;
+            line-height: 1.7;
+        }
+
+        .pullquote {
+            color: #ffcc00;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            background: #330000;
+            border: 3px outset #ff6600;
+            padding: 8px;
+            margin: 14px 0 4px;
+        }
+
+        .button {
+            display: inline-block;
+            background: linear-gradient(#ffff00, #ff9900);
+            color: #000000;
+            border: 4px outset #ffcc00;
+            padding: 8px 12px;
+            font-weight: bold;
+            text-decoration: none;
+            margin: 8px 0;
+            font-family: Arial Black, Impact, sans-serif;
+        }
+
+        .disabled-button {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+
+        .trade-ad {
+            text-align: center;
+            background: #2a003f;
+            border: 5px ridge #ffff00;
+            padding: 10px;
+            color: #ffffff;
+        }
+
+        .trade-ad .big {
+            color: #ff66ff;
+            font-family: Impact, Arial Black, sans-serif;
+            font-size: 30px;
+            line-height: 0.95;
+            text-shadow: 2px 2px #000000;
+        }
+
+        .trade-ad .sub {
+            color: #00ffff;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        .construction {
+            color: #000000;
+            background: #ffff00;
+            font-weight: bold;
+            display: inline-block;
+            padding: 2px 6px;
+            border: 2px outset #ffffff;
+        }
+
+        .dir a {
+            display: block;
+            padding: 5px;
+            margin: 5px 0;
+            background: #000000;
+            border: 2px outset #666666;
+            font-family: 'Courier New', monospace;
+        }
+
+        .warning {
+            color: #ff3333;
+            background: #000000;
+            border: 2px solid #ff0000;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            margin-top: 10px;
+        }
+
+        .counter {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            background: #000000;
+            border: 2px inset #00ff00;
+            padding: 6px;
+            margin-top: 12px;
+        }
+
+        .tiny {
+            font-size: 11px;
+            color: #cccccc;
+        }
+
+        .adbox {
+            background: #000000;
+            border: 3px outset #ff00ff;
+            margin-bottom: 12px;
+            padding: 8px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .adbox h3 {
+            margin: 4px 0;
+            color: #ffff00;
+            font-family: Impact, Arial Black, sans-serif;
+            font-size: 20px;
+        }
+
+        .broken-img {
+            display: inline-block;
+            width: 88px;
+            height: 31px;
+            background: #ffffff;
+            color: #cc0000;
+            border: 1px solid #000000;
+            font-size: 10px;
+            text-align: left;
+            padding: 3px;
+            box-sizing: border-box;
+            vertical-align: middle;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .left{
+            text-align: left;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #999999;
+            margin-top: 18px;
+        }
+
+        .market-header,
+        .market-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 80px 70px;
+            gap: 12px;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .market-header {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            border-bottom: 1px dashed #00ffff;
+            margin-bottom: 6px;
+        }
+
+        .market-row {
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 850px) {
+            .page { grid-template-columns: 1fr; }
+            .nav, .ads { position: static; height: auto; }
+            h1 { font-size: 32px; }
+        }
+    </style>
+  <script type="module" crossorigin src="/eve-frontier-vylent-free-stuff-dapp/assets/index-BbakdMsf.js"></script>
+</head>
+<body>
+<marquee scrollamount="7">*** WELCOME DRIFTER *** CLAIM YOUR FREE SHAME REDUCTION PACKAGE *** NO REFUNDS -- CUZ IT'S FREE *** NOW STOP BRINGING ME SILICON DUST ***</marquee>
+
+<div class="page">
+    <!--<aside class="frame nav">
+        <div class="frame-title">nav_frame.html</div>
+        <div class="broken-img">button.gif</div>
+        <p><strong class="blink">SITE DIRECTORY</strong></p>
+        <div class="dir">
+            <a href="#kits">/free-kit</a>
+            <a href="#trade">/trade-encounters</a>
+            <a href="#junk">/We-Buy-junk</a>
+            <a href="#turrets">/turret-solutions</a>
+            <a href="#">/FUEL-PRICES</a>
+            <a href="#">/fuel_flow-final3</a>
+            <a href="#">/ledger-men-truth</a>
+        </div>
+        <div class="counter">
+            VISITOR #<br />0000047
+        </div>
+        <p class="tiny">Best viewed on a depot terminal at 800x600.</p>
+    </aside>-->
+
+    <main class="frame">
+        <h1>Vylent’s Outfitters</h1>
+
+        <img src="/eve-frontier-vylent-free-stuff-dapp/assets/5WM5S6N37CSJN6I25PEXP55TJBS4OT2B-NU2U58Ig.gif" style="max-height: 140px; object-fit: contain; display: block; margin: 0 auto;" alt="spazzy space ship"/>
+
+        <div class="motto">“Ledgermen want you busy. I want you gone.”</div>
+
+        <p>
+            Everything here is salvaged, <span class="blink">siphoned</span>, repaired, reclassified, mislabeled,
+            overclocked, under-inspected, or <strong>lightly condemned</strong>.
+        </p>
+
+        <section class="section">
+            <h2>[ VYLENT'S OUTFITTERS -- WE BUY JUNK! ]</h2>
+
+            <p><strong>Our Invenetory Now Includes:</strong></p>
+            <ul class="features">
+                <li>fewer counterfeit parts</li>
+                <li>reduced coolant leakage</li>
+                <li>totally "within spec” reactor components</li>
+            </ul>
+
+            <div id="credits">CREDITS: ...</div>
+            <hr>
+
+            <div>
+                <a href="#" id="buy-tab">[Buy]</a>
+                |
+                <a href="#" id="sell-tab">[Sell]</a>
+            </div>
+
+            <div id="market-output"></div>
+            <div id="trade-terminal-output" class="warning" style="display:none;"></div>
+
+        </section>
+
+        <section class="section" id="kits">
+            <h2>[ FREE SHAME REDUCTION PACKAGE ]</h2>
+            <p><strong>Running out of fuel should be a valuable learning experience.</strong></p>
+            <p>But based on demand, we're beginning to suspect fuel shortages may be hereditary.</p>
+
+            <p><strong>INCLUDED:</strong></p>
+            <ul class="kit-list">
+                <li>500x D1 Fuel</li>
+            </ul>
+
+            <p><strong>Please try not to end up back here again.</strong></p>
+
+            <div class="pullquote">
+                Because if the frontier’s gonna eat you,<br />
+                    it should at least have to chew.
+            </div>
+            <img src="/eve-frontier-vylent-free-stuff-dapp/assets/KDEIXVLMDWRNVNTGGFRN4YONDITUV4W2-GhuBaRjh.gif" height="60" width="70" alt="fire"/>
+            <a href="#" class="button" id="claim-kit-button">
+                CLAIM FREE GAS!!!
+            </a>
+            <img src="/eve-frontier-vylent-free-stuff-dapp/assets/KDEIXVLMDWRNVNTGGFRN4YONDITUV4W2-GhuBaRjh.gif" height="60" width="70" alt="fire"/>
+            <div id="terminal-output" class="warning" style="display:none;"></div>
+
+        </section>
+
+        <section class="section" id="trade">
+            <h2>[ SPONSORED TRADE ENCOUNTERS ]</h2>
+            <div class="trade-ad">
+                <div class="big">SINGLE DRIFTERS<br />WANT TO TRADE</div>
+                <div class="sub">LOW COMMITMENT TRADE ENCOUNTERS</div>
+                <div class="left"> <img src="images/reflex_banner_FINAL2_REAL.gif"></div>
+                <p>Real Drifters</p>
+                <p>Real Trades</p>
+                <p>Real Risks</p>
+                <p><strong>Somebody out there needs your SIlicon Dust!</strong></p>
+                <p>i>(Probably.)</p>
+                <a href="#" id="trade-button" class="button disabled-button">CLICK HERE MAYBE</a>
+            </div>
+        </section>
+        <img src="/eve-frontier-vylent-free-stuff-dapp/assets/mamagnolia_acresunderconstruction%20(2)-BMsocMhH.gif" width="98%"/>
+        <!--<section class="section" id="junk">
+            <h2>[ WE BUY JUNK — <span class="construction">UNDER CONSTRUCTION</span> ]</h2>
+            <p><strong>Trade:</strong></p>
+            <ul class="junk-list">
+                <li>scrap</li>
+                <li>Feral Tchotchkes</li>
+                <li>Hokey Crystals</li>
+                <li>inop electronics</li>
+                <li>Excess data</li>
+                <li>emotionally significant debris</li>
+                <li><s>Silicon Dust</s> <span class="warning">WE ARE CURRENTLY OVERSTOCKED</span></li>
+            </ul>
+
+            <p><strong>For:</strong></p>
+            <p><span class="button disabled-button">“new” Reflex™</span></p>
+
+            <p><strong>Now with:</strong></p>
+            <ul class="features">
+                <li>fewer counterfeit parts</li>
+                <li>reduced coolant leakage</li>
+                <li>totally "within spec” reactor components</li>
+            </ul>
+
+            <p class="blink"><strong>Act now and get a Free Tank of Fuel!</strong></p>
+            <p class="tiny">While supplies last.</p>
+
+            <img src="images/CoColosseumField5989Construction.gif" height="40" width="40"/>
+            <p class="center"><img src="images/FV6IVARBFWTJUGGELSFG2ZZBHHJDHX5Z.gif" height="150" width="150" /></p>
+        </section>-->
+        <section class="section" id="turrets">
+            <h2>KESTREL AUTOTURRETS™</h2>
+            <p><strong>“Easy to deploy.”</strong></p>
+            <p>Also:</p>
+            <p><strong>easy to outsmart</strong></p>
+            <p>But statistically intimidating nonetheless.</p>
+
+            <div class="warning">
+                KESTREL TURRET FIRING SOLUTIONS™<br />
+                We’re working on it.
+            </div>
+        </section>
+
+        <div class="footer">
+            © 7991 Vylent’s Outfitters. No Ledgermen. No refunds. No prolonged loitering.<br />
+            This depot is not responsible for ambushes, depressurization, counterfeit Reflex, turret philosophy, or emotional attachment.
+        </div>
+    </main>
+
+    <!--<aside class="frame ads">
+        <div class="frame-title">ad_frame.html</div>
+
+        <div class="adbox">
+            <h3>REFINING WATER ICE AGAIN?</h3>
+            <p>Meet:<br>
+                exhausted drifters<br>
+                suspicious merchants<br>
+                emotionally unavailable scav captains</p>
+            <p><strong>LOW COMMITMENT TRADE ENCOUNTERS™</strong></p>
+        </div>
+
+        <div class="adbox">
+            <h3>“Most disasters arrive one ignored noise at a time.”</h3>
+            <p>-Vylent</p>
+        </div>
+
+        <div class="adbox">
+            <img src="images/3WQLBTTSZJD5NTG2UP4FHEZH3U46EKQD.gif" height="42" width="70"/>
+            <h3>KORVEN INDUSTRIAL AUTOMATION MODULES</h3>
+            <p class="warning">
+                COMING IN -73824 DAYS!
+            </p>
+            <p class="tiny">"We build character!"</p>
+        </div>
+
+        <div class="adbox">
+            <h3 class="blink">WARNING</h3>
+            <p>Optimism is not fuel.</p>
+        </div>
+
+        <p class="tiny">adserver.cgi returned 3 warnings and one half-eaten box of raisins.</p>
+    </aside> -->
+</div>
+</body>
+</html>
