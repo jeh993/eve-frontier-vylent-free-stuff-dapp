@@ -1,5 +1,14 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
+import { resolve } from "path";
 
 export default defineConfig({
-    base: '/eve-frontier-vylent-free-stuff-dapp/',
+    base: "./",
+    build: {
+        rollupOptions: {
+            input: {
+                index: resolve(__dirname, "index.html"),
+                admin: resolve(__dirname, "admin.html"),
+            },
+        },
+    },
 });
