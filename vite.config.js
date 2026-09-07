@@ -15,4 +15,15 @@ export default defineConfig(({ command }) => ({
             },
         },
     },
+
+    server: {
+        proxy: {
+            "/sui-rpc": {
+                target: "https://fullnode.testnet.sui.io",
+                changeOrigin: true,
+                secure: true,
+                rewrite: (path) => path.replace(/^\/sui-rpc/, ""),
+            },
+        },
+    },
 }));
