@@ -12,6 +12,7 @@ export default defineConfig(({ command }) => ({
             input: {
                 index: resolve(process.cwd(), "index.html"),
                 admin: resolve(process.cwd(), "admin.html"),
+                deposit: resolve(process.cwd(), "eve-deposit.html"),
             },
         },
     },
