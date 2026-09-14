@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Vylent EVE Admin</title>
+
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #0a0a0a;
+            color: #eee;
+        }
+
+        h1,
+        h2 {
+            font-weight: normal;
+        }
+
+        .panel {
+            border: 1px solid #444;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .muted {
+            color: #aaa;
+        }
+
+        .success {
+            color: #8f8;
+        }
+
+        .error {
+            color: #f88;
+        }
+
+        .value {
+            overflow-wrap: anywhere;
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+
+        input {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 420px;
+            padding: 9px;
+            background: #151515;
+            color: white;
+            border: 1px solid #555;
+            font-family: monospace;
+        }
+
+        button {
+            padding: 9px 14px;
+            margin: 12px 8px 4px 0;
+            background: #181818;
+            color: white;
+            border: 1px solid #777;
+            cursor: pointer;
+            font-family: monospace;
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        #status {
+            white-space: pre-wrap;
+        }
+    </style>
+  <script type="module" crossorigin src="/eve-frontier-vylent-free-stuff-dapp/dist/assets/eveAdmin-DoCsAqu_.js"></script>
+  <link rel="modulepreload" crossorigin href="/eve-frontier-vylent-free-stuff-dapp/dist/assets/sui-client-DM3OdUcG.js">
+  <link rel="modulepreload" crossorigin href="/eve-frontier-vylent-free-stuff-dapp/dist/assets/world-wGDV4HZ1.js">
+</head>
+
+<body>
+
+<h1>VYLENT ADMIN</h1>
+
+<div class="panel">
+    <h2>Admin Wallet</h2>
+
+    <button id="connect-button">
+        Connect Slush
+    </button>
+
+    <button
+            id="refresh-button"
+            disabled
+    >
+        Refresh
+    </button>
+
+    <div class="muted">Wallet</div>
+    <div
+            id="wallet-address"
+            class="value"
+    >
+        Not connected
+    </div>
+
+    <div class="muted">AdminCap</div>
+    <div
+            id="admin-cap"
+            class="value"
+    >
+        Not checked
+    </div>
+</div>
+
+
+<div class="panel">
+    <h2>Storage Unit</h2>
+
+    <div class="muted">
+        SSU
+    </div>
+
+    <div
+            id="storage-id"
+            class="value"
+    >
+        NONE
+    </div>
+
+    <p class="muted">
+        Open this page as
+        eve-admin.html?storage=0x...
+    </p>
+</div>
+
+
+<div class="panel">
+    <h2>EVE Treasury</h2>
+
+    <div class="muted">
+        Treasury
+    </div>
+
+    <div
+            id="treasury-id"
+            class="value"
+    ></div>
+
+    <div>
+        Balance:
+        <strong id="treasury-balance">
+            —
+        </strong>
+    </div>
+
+    <label for="withdraw-amount">
+        Withdraw EVE
+    </label>
+
+    <input
+            id="withdraw-amount"
+            type="text"
+            inputmode="decimal"
+            placeholder="1"
+    />
+
+    <button
+            id="withdraw-button"
+            disabled
+    >
+        Withdraw EVE
+    </button>
+</div>
+
+
+<div class="panel">
+    <h2>Item Pricing</h2>
+
+    <p class="muted">
+        "Store pays" is what Vylent pays a player
+        when the player sells the item.
+        "Player pays" is what the player pays Vylent
+        when buying the item.
+    </p>
+
+    <label for="price-item-id">
+        Item Type ID
+    </label>
+
+    <input
+            id="price-item-id"
+            type="text"
+            inputmode="numeric"
+            placeholder="1000005671069"
+    />
+
+    <label for="sell-price">
+        Store Pays Player (EVE)
+    </label>
+
+    <input
+            id="sell-price"
+            type="text"
+            inputmode="decimal"
+            placeholder="5"
+    />
+
+    <label for="buy-price">
+        Player Pays Store (EVE)
+    </label>
+
+    <input
+            id="buy-price"
+            type="text"
+            inputmode="decimal"
+            placeholder="10"
+    />
+
+    <button
+            id="set-price-button"
+            disabled
+    >
+        Set Price
+    </button>
+
+    <button
+            id="remove-price-button"
+            disabled
+    >
+        Remove Price
+    </button>
+
+    <h3>Current Prices</h3>
+
+    <div id="prices-output">
+        No SSU loaded.
+    </div>
+</div>
+
+
+<div class="panel">
+    <h2>Freebies</h2>
+
+    <label for="freebie-type-id">
+        Item Type ID
+    </label>
+
+    <input
+            id="freebie-type-id"
+            type="text"
+            inputmode="numeric"
+            placeholder="1000005671069"
+    />
+
+    <label for="freebie-quantity">
+        Quantity
+    </label>
+
+    <input
+            id="freebie-quantity"
+            type="number"
+            min="1"
+            value="1"
+    />
+
+    <button
+            id="set-freebie-button"
+            disabled
+    >
+        Set Freebie
+    </button>
+
+    <button
+            id="remove-freebie-button"
+            disabled
+    >
+        Remove Freebie
+    </button>
+</div>
+
+
+<div class="panel">
+    <h2>Status</h2>
+
+    <div
+            id="status"
+            class="muted"
+    >
+        Connect the Slush admin wallet.
+    </div>
+</div>
+
+
+
+</body>
+
+</html>http://localhost:5173/index.html?storage=0x71ed7e07c7c360449d8331d97904185988ac8357afd0706462e3e70599934878

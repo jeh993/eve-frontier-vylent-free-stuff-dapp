@@ -1,22 +1,477 @@
-<!-- admin.html -->
+```html
 <!doctype html>
-<html>
+
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8" />
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    />
+
     <title>Vylent Admin</title>
-  <script type="module" crossorigin src="/eve-frontier-vylent-free-stuff-dapp/dist/assets/admin-DwT0qphe.js"></script>
-  <link rel="modulepreload" crossorigin href="/eve-frontier-vylent-free-stuff-dapp/dist/assets/sui-client-CMS4i6cL.js">
-  <link rel="modulepreload" crossorigin href="/eve-frontier-vylent-free-stuff-dapp/dist/assets/world-AfzM2nMQ.js">
+
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+
+            background: #080808;
+            color: #e8e8e8;
+        }
+
+        h1,
+        h2 {
+            font-weight: normal;
+        }
+
+        .panel {
+            border: 1px solid #444;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .label {
+            color: #999;
+            margin-bottom: 6px;
+        }
+
+        .value {
+            overflow-wrap: anywhere;
+            margin-bottom: 16px;
+        }
+
+        input {
+            box-sizing: border-box;
+
+            width: 100%;
+
+            padding: 10px;
+
+            margin:
+                    6px 0
+                    12px 0;
+
+            font-family: monospace;
+            font-size: 1rem;
+
+            background: #111;
+            color: #fff;
+
+            border: 1px solid #555;
+        }
+
+        button {
+            margin:
+                    6px 8px
+                    6px 0;
+
+            padding:
+                    10px 16px;
+
+            font-family: monospace;
+            font-size: 1rem;
+
+            cursor: pointer;
+
+            background: #181818;
+            color: #fff;
+
+            border:
+                    1px solid #777;
+        }
+
+        button:hover {
+            background: #292929;
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        a {
+            color: #9ed0ff;
+        }
+
+        #terminal-output {
+            border-top:
+                    1px solid #333;
+
+            margin-top: 20px;
+            padding-top: 15px;
+
+            white-space: pre-wrap;
+        }
+
+        .warning {
+            color: #ffcc66;
+        }
+
+        .success {
+            color: #8eff8e;
+        }
+    </style>
+  <script type="module" crossorigin src="/eve-frontier-vylent-free-stuff-dapp/dist/assets/admin-CIt7qiEZ.js"></script>
+  <link rel="modulepreload" crossorigin href="/eve-frontier-vylent-free-stuff-dapp/dist/assets/sui-client-DM3OdUcG.js">
+  <link rel="modulepreload" crossorigin href="/eve-frontier-vylent-free-stuff-dapp/dist/assets/wallet-Cf8AOpik.js">
+  <link rel="modulepreload" crossorigin href="/eve-frontier-vylent-free-stuff-dapp/dist/assets/world-wGDV4HZ1.js">
 </head>
+
+
 <body>
-<h1>Vylent Admin</h1>
 
-<button id="authorize-button">Authorize Storage Unit</button>
-<button id="exchange-button" disabled>Setup / Edit Exchange</button>
+<h1>VYLENT ADMIN</h1>
 
-<div id="terminal-output" style="display:none;"></div>
 
-<button id="sell-test-button">Sell Test</button>
-<button id="buy-test-button">Buy Test</button>
+<!-- ================================================= -->
+<!-- STORAGE UNIT SELECTOR                             -->
+<!-- ================================================= -->
+
+<div class="panel">
+
+    <h2>Storage Unit</h2>
+
+    <div class="label">
+        Current SSU
+    </div>
+
+    <div
+            id="current-storage"
+            class="value"
+    >
+        NONE SELECTED
+    </div>
+
+
+    <label
+            for="storage-input"
+    >
+        Storage Unit Object ID
+    </label>
+
+    <input
+            id="storage-input"
+            type="text"
+            placeholder="0x..."
+            autocomplete="off"
+    />
+
+
+    <button
+            id="load-storage-button"
+            type="button"
+    >
+        Load SSU
+    </button>
+
+
+    <button
+            id="clear-storage-button"
+            type="button"
+    >
+        Clear
+    </button>
+
+
+    <div
+            id="storage-warning"
+            class="warning"
+    ></div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- VYLENT AUTHORIZATION                             -->
+<!-- ================================================= -->
+
+<div class="panel">
+
+    <h2>Vylent Authorization</h2>
+
+    <p>
+        Authorize this Storage Unit to allow
+        the Vylent contract to interact with it.
+    </p>
+
+    <button
+            id="authorize-button"
+            disabled
+    >
+        Select an SSU First
+    </button>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- EXCHANGE CONFIG                                  -->
+<!-- ================================================= -->
+
+<div class="panel">
+
+    <h2>Exchange</h2>
+
+    <p>
+        Configure freebies and item pricing for
+        the selected Storage Unit.
+    </p>
+
+    <button
+            id="exchange-button"
+            disabled
+    >
+        Select an SSU First
+    </button>
+
+
+    <button
+            id="open-store-button"
+            disabled
+    >
+        Open Storefront
+    </button>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- DEVELOPMENT TESTS                                -->
+<!-- ================================================= -->
+
+<div class="panel">
+
+    <h2>Development Tests</h2>
+
+    <button
+            id="sell-test-button"
+            disabled
+    >
+        Sell Test
+    </button>
+
+    <button
+            id="buy-test-button"
+            disabled
+    >
+        Buy Test
+    </button>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- TERMINAL                                         -->
+<!-- ================================================= -->
+
+<div class="panel">
+
+    <h2>Terminal</h2>
+
+    <div
+            id="terminal-output"
+    >
+        SELECT A STORAGE UNIT.
+    </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- SSU SELECTION                                    -->
+<!-- ================================================= -->
+
+<script>
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const storageUnitId =
+        params.get("storage");
+
+
+    const storageInput =
+        document.getElementById(
+            "storage-input"
+        );
+
+    const currentStorage =
+        document.getElementById(
+            "current-storage"
+        );
+
+    const storageWarning =
+        document.getElementById(
+            "storage-warning"
+        );
+
+    const authorizeButton =
+        document.getElementById(
+            "authorize-button"
+        );
+
+    const sellTestButton =
+        document.getElementById(
+            "sell-test-button"
+        );
+
+    const buyTestButton =
+        document.getElementById(
+            "buy-test-button"
+        );
+
+    const openStoreButton =
+        document.getElementById(
+            "open-store-button"
+        );
+
+
+    if (storageUnitId) {
+
+        storageInput.value =
+            storageUnitId;
+
+        currentStorage.textContent =
+            storageUnitId;
+
+        storageWarning.textContent =
+            "";
+
+        /*
+         * admin.js will decide whether these
+         * operations are actually authorized.
+         */
+
+        authorizeButton.disabled =
+            false;
+
+        sellTestButton.disabled =
+            false;
+
+        buyTestButton.disabled =
+            false;
+
+        openStoreButton.disabled =
+            false;
+
+    } else {
+
+        currentStorage.textContent =
+            "NONE SELECTED";
+
+        storageWarning.textContent =
+            "Enter an SSU object ID and click Load SSU.";
+    }
+
+
+    document
+        .getElementById(
+            "load-storage-button"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                const value =
+                    storageInput.value
+                        .trim();
+
+                if (
+                    !/^0x[0-9a-fA-F]+$/.test(
+                        value
+                    )
+                ) {
+                    storageWarning
+                        .textContent =
+                        "That does not look like a Sui object ID.";
+
+                    return;
+                }
+
+
+                const next =
+                    new URL(
+                        window.location.href
+                    );
+
+                next.searchParams.set(
+                    "storage",
+                    value
+                );
+
+
+                window.location.href =
+                    next.toString();
+            }
+        );
+
+
+    document
+        .getElementById(
+            "clear-storage-button"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                const next =
+                    new URL(
+                        window.location.href
+                    );
+
+                next.searchParams.delete(
+                    "storage"
+                );
+
+
+                window.location.href =
+                    next.toString();
+            }
+        );
+
+
+    openStoreButton
+        .addEventListener(
+            "click",
+            () => {
+
+                if (!storageUnitId) {
+                    return;
+                }
+
+
+                const store =
+                    new URL(
+                        "./index.html",
+                        window.location.href
+                    );
+
+
+                store.searchParams.set(
+                    "storage",
+                    storageUnitId
+                );
+
+
+                window.location.href =
+                    store.toString();
+            }
+        );
+</script>
+
+
+<!-- ================================================= -->
+<!-- EXISTING VYLENT ADMIN LOGIC                       -->
+<!-- ================================================= -->
 
+
 </body>
+
 </html>
+```

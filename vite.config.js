@@ -10,9 +10,10 @@ export default defineConfig(({ command }) => ({
     build: {
         rollupOptions: {
             input: {
-                index: resolve(process.cwd(), "index.html"),
-                admin: resolve(process.cwd(), "admin.html"),
-                deposit: resolve(process.cwd(), "eve-deposit.html"),
+                main: resolve(__dirname, "index.html"),
+                admin: resolve(__dirname, "admin.html"),
+                eveAdmin: resolve(__dirname, "eve-admin.html"),
+                eveDeposit: resolve(__dirname, "eve-deposit.html"),
             },
         },
     },
@@ -24,6 +25,13 @@ export default defineConfig(({ command }) => ({
                 changeOrigin: true,
                 secure: true,
                 rewrite: (path) => path.replace(/^\/sui-rpc/, ""),
+            },
+
+            "/sui-mainnet-rpc": {
+                target: "https://fullnode.mainnet.sui.io",
+                changeOrigin: true,
+                secure: true,
+                rewrite: (path) => path.replace(/^\/sui-mainnet-rpc/, ""),
             },
         },
     },

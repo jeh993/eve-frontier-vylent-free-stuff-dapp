@@ -1,6 +1,10 @@
 import { Transaction } from "@mysten/sui/transactions";
-import { suiClient } from "./sui-client";
-import { getWalletAndAccount, signAndExecute } from "./wallet";
+
+import { suiClient } from "./sui-client.js";
+import {
+    getWalletAndAccount,
+    signAndExecute,
+} from "./wallet.js";
 
 const PACKAGE_ID =
     "0xa2f86c3e24b229cf9b287dcdfd959b4e3c313fc8709f1b4a81af23d403903ea1";
@@ -14,41 +18,63 @@ const EVE_TYPE =
 const EVE_DECIMALS = 9;
 const EVE_SCALE = 10n ** BigInt(EVE_DECIMALS);
 
-let wallet = null;
-let account = null;
+let currentWallet = null;
+let currentAccount = null;
 
-const $ = (id) => document.getElementById(id);
+const el = (id) => document.getElementById(id);
 
-$("package-id").textContent = PACKAGE_ID;
-$("treasury-id").textContent = TREASURY_ID;
-$("eve-type").textContent = EVE_TYPE;
 
-function setStatus(message, kind = "muted") {
-    const el = $("status");
-    el.className = kind;
-    el.textContent = message;
+// ---------------------------------------------------------
+// PAGE SETUP
+// ---------------------------------------------------------
+
+el("package-id").textContent = PACKAGE_ID;
+el("treasury-id").textContent = TREASURY_ID;
+el("eve-type").textContent = EVE_TYPE;
+
+
+// ---------------------------------------------------------
+// STATUS
+// ---------------------------------------------------------
+
+function setStatus(message, className = "muted") {
+    const status = el("status");
+
+    status.className = className;
+    status.textContent = message;
 }
 
-function formatEve(baseUnits) {
-    const value = BigInt(baseUnits);
-    const whole = value / EVE_SCALE;
 
-    const fraction = (value % EVE_SCALE)
+// ---------------------------------------------------------
+// EVE AMOUNT HELPERS
+// ---------------------------------------------------------
+
+function formatEve(value) {
+    const amount = BigInt(value);
+
+    const whole = amount / EVE_SCALE;
+
+    const fraction = (amount % EVE_SCALE)
         .toString()
         .padStart(EVE_DECIMALS, "0")
         .replace(/0+$/, "");
 
-    return fraction ? `${whole}.${fraction}` : `${whole}`;
+    return fraction
+        ? `${whole}.${fraction}`
+        : `${whole}`;
 }
 
-function parseEve(input) {
-    const trimmed = input.trim();
 
-    if (!/^\d+(\.\d+)?$/.test(trimmed)) {
-        throw new Error("Enter a positive EVE amount, e.g. 0.01");
+function parseEve(value) {
+    const text = value.trim();
+
+    if (!/^\d+(\.\d+)?$/.test(text)) {
+        throw new Error(
+            "Enter a positive EVE amount, e.g. 0.01"
+        );
     }
 
-    const [whole, fraction = ""] = trimmed.split(".");
+    const [whole, fraction = ""] = text.split(".");
 
     if (fraction.length > EVE_DECIMALS) {
         throw new Error(
@@ -56,92 +82,132 @@ function parseEve(input) {
         );
     }
 
-    const paddedFraction = fraction.padEnd(EVE_DECIMALS, "0");
+    const paddedFraction =
+        fraction.padEnd(EVE_DECIMALS, "0");
 
     const amount =
         BigInt(whole) * EVE_SCALE +
         BigInt(paddedFraction || "0");
 
     if (amount <= 0n) {
-        throw new Error("Deposit amount must be greater than zero.");
+        throw new Error(
+            "Deposit amount must be greater than zero."
+        );
     }
 
     return amount;
 }
 
+
+// ---------------------------------------------------------
+// READ ALL EVE COINS OWNED BY WALLET
+// ---------------------------------------------------------
+
 async function getAllEveCoins(owner) {
     const coins = [];
-    let cursor = null;
 
-    do {
-        const page = await suiClient.getCoins({
+    let page = await suiClient.listCoins({
+        owner,
+        coinType: EVE_TYPE,
+        limit: 50,
+    });
+
+    while (true) {
+        coins.push(...page.objects);
+
+        if (!page.hasNextPage) {
+            break;
+        }
+
+        page = await suiClient.listCoins({
             owner,
             coinType: EVE_TYPE,
-            cursor,
+            cursor: page.cursor,
             limit: 50,
         });
+    }
 
-        coins.push(...page.data);
-
-        cursor = page.hasNextPage
-            ? page.nextCursor
-            : null;
-    } while (cursor);
+    console.log("EVE coin objects:", coins);
 
     return coins;
 }
 
+
+// ---------------------------------------------------------
+// READ VYLENT TREASURY BALANCE
+// ---------------------------------------------------------
+
 async function getTreasuryBalance() {
-    const object = await suiClient.getObject({
-        id: TREASURY_ID,
-        options: {
-            showContent: true,
+    const { object } = await suiClient.getObject({
+        objectId: TREASURY_ID,
+        include: {
+            json: true,
         },
     });
 
-    const fields = object?.data?.content?.fields;
+    console.log("Treasury object:", object);
 
-    if (!fields) {
-        throw new Error("Could not read EveTreasury fields.");
+    if (!object) {
+        throw new Error("EveTreasury object not found.");
     }
 
-    const raw =
-        typeof fields.balance === "string"
-            ? fields.balance
-            : fields.balance?.fields?.value ??
-            fields.balance?.value ??
-            fields.balance?.fields?.balance;
+    console.log("Treasury JSON:", object.json);
 
-    if (raw === undefined || raw === null) {
-        console.log("Treasury object fields:", fields);
+    const fields = object.json;
 
+    if (!fields) {
         throw new Error(
-            "Treasury found, but its EVE balance field had an unexpected RPC shape. See console."
+            "Treasury object returned without JSON fields. See console."
         );
     }
 
-    return BigInt(raw);
+    const balance =
+        fields.balance ??
+        fields.balance?.value ??
+        fields.balance?.fields?.value ??
+        fields.balance?.fields?.balance;
+
+    if (balance == null) {
+        console.log("Treasury fields:", fields);
+
+        throw new Error(
+            "Treasury found, but couldn't locate its EVE balance. See console."
+        );
+    }
+
+    return BigInt(balance);
 }
 
+
+// ---------------------------------------------------------
+// REFRESH WALLET + TREASURY BALANCES
+// ---------------------------------------------------------
+
 async function refreshBalances() {
-    if (!account) return;
+    if (!currentAccount) {
+        return;
+    }
 
     const [coins, treasuryBalance] =
         await Promise.all([
-            getAllEveCoins(account.address),
+            getAllEveCoins(
+                currentAccount.address
+            ),
+
             getTreasuryBalance(),
         ]);
 
-    const walletTotal = coins.reduce(
-        (sum, coin) =>
-            sum + BigInt(coin.balance),
-        0n
-    );
+    const walletTotal =
+        coins.reduce(
+            (total, coin) =>
+                total + BigInt(coin.balance),
+            0n
+        );
 
-    $("wallet-balance").textContent =
+    el("wallet-balance").textContent =
         `${formatEve(walletTotal)} EVE`;
 
-    $("treasury-balance").textContent =
+    el("treasury-balance").textContent =
         `${formatEve(treasuryBalance)} EVE`;
 
     return {
@@ -151,32 +217,65 @@ async function refreshBalances() {
     };
 }
 
+
+// ---------------------------------------------------------
+// CONNECT EVE VAULT
+// ---------------------------------------------------------
+
 async function connect() {
     try {
-        setStatus("Requesting Eve Vault connection…");
+        setStatus(
+            "Requesting Eve Vault connection…"
+        );
 
-        ({
-            wallet,
-            suiAccount: account,
-        } = await getWalletAndAccount());
+        console.log("PAGE ORIGIN:", {
+            href: window.location.href,
+            origin: window.location.origin,
+            protocol: window.location.protocol,
+            isTopLevel:
+                window.top === window.self,
+        });
 
-        $("wallet-address").textContent =
-            account.address;
+        const result =
+            await getWalletAndAccount();
 
-        $("deposit-button").disabled = false;
-        $("refresh-button").disabled = false;
+        currentWallet = result.wallet;
+        currentAccount = result.suiAccount;
 
-        $("connect-button").textContent =
+        console.log(
+            "CONNECTED TO:",
+            currentWallet.name
+        );
+
+        console.log(
+            "ACCOUNT:",
+            currentAccount.address
+        );
+
+        el("wallet-address").textContent =
+            currentAccount.address;
+
+        el("deposit-button").disabled =
+            false;
+
+        el("refresh-button").disabled =
+            false;
+
+        el("connect-button").textContent =
             "EVE VAULT CONNECTED";
 
         await refreshBalances();
 
         setStatus(
-            "Connected. Ready to deposit testnet EVE.",
+            "Connected.\nReady to deposit testnet EVE.",
             "success"
         );
+
     } catch (error) {
-        console.error(error);
+        console.error(
+            "EVE Vault connection failed:",
+            error
+        );
 
         setStatus(
             error?.message ?? String(error),
@@ -185,91 +284,136 @@ async function connect() {
     }
 }
 
-function selectCoinsForAmount(coins, amount) {
-    const sorted = [...coins].sort(
-        (a, b) =>
-            BigInt(b.balance) > BigInt(a.balance)
-                ? 1
-                : BigInt(b.balance) < BigInt(a.balance)
-                    ? -1
-                    : 0
-    );
+
+// ---------------------------------------------------------
+// CHOOSE ENOUGH COIN OBJECTS TO COVER DEPOSIT
+// ---------------------------------------------------------
+
+function chooseCoins(
+    coins,
+    requiredAmount
+) {
+    const sorted =
+        [...coins].sort(
+            (a, b) =>
+                BigInt(b.balance) >
+                BigInt(a.balance)
+                    ? 1
+                    : BigInt(b.balance) <
+                    BigInt(a.balance)
+                        ? -1
+                        : 0
+        );
 
     const selected = [];
+
     let total = 0n;
 
     for (const coin of sorted) {
         selected.push(coin);
-        total += BigInt(coin.balance);
 
-        if (total >= amount) {
+        total +=
+            BigInt(coin.balance);
+
+        if (total >= requiredAmount) {
             break;
         }
     }
 
-    if (total < amount) {
+    if (total < requiredAmount) {
         throw new Error(
-            `Not enough EVE. Wallet has ${formatEve(total)} EVE, deposit requires ${formatEve(amount)} EVE.`
+            `Not enough EVE.\nWallet has ${formatEve(total)} EVE, deposit requires ${formatEve(requiredAmount)} EVE.`
         );
     }
 
     return selected;
 }
 
+
+// ---------------------------------------------------------
+// DEPOSIT EVE
+// ---------------------------------------------------------
+
 async function deposit() {
-    if (!wallet || !account) {
+    if (
+        !currentWallet ||
+        !currentAccount
+    ) {
         throw new Error(
             "Connect Eve Vault first."
         );
     }
 
     const amount =
-        parseEve($("amount").value);
+        parseEve(
+            el("amount").value
+        );
 
-    const coins =
-        await getAllEveCoins(account.address);
+    const allCoins =
+        await getAllEveCoins(
+            currentAccount.address
+        );
 
-    const selected =
-        selectCoinsForAmount(
-            coins,
+    const selectedCoins =
+        chooseCoins(
+            allCoins,
             amount
         );
 
-    const tx = new Transaction();
+    const tx =
+        new Transaction();
 
-    const primary =
+    const primaryCoin =
         tx.object(
-            selected[0].coinObjectId
+            selectedCoins[0]
+                .objectId
         );
 
-    if (selected.length > 1) {
+    // Merge multiple EVE coin objects
+    // if necessary.
+
+    if (
+        selectedCoins.length > 1
+    ) {
         tx.mergeCoins(
-            primary,
-            selected
+            primaryCoin,
+
+            selectedCoins
                 .slice(1)
-                .map((coin) =>
-                    tx.object(
-                        coin.coinObjectId
-                    )
+                .map(
+                    (coin) =>
+                        tx.object(
+                            coin.objectId
+                        )
                 )
         );
     }
 
-    const [payment] =
+    // Split off exactly the amount
+    // being deposited.
+
+    const [depositCoin] =
         tx.splitCoins(
-            primary,
+            primaryCoin,
             [
-                tx.pure.u64(amount),
+                tx.pure.u64(
+                    amount
+                ),
             ]
         );
+
+    // Call Vylent Move contract.
 
     tx.moveCall({
         target:
             `${PACKAGE_ID}::vylent_free_stuff::deposit_eve`,
 
         arguments: [
-            tx.object(TREASURY_ID),
-            payment,
+            tx.object(
+                TREASURY_ID
+            ),
+
+            depositCoin,
         ],
     });
 
@@ -277,13 +421,14 @@ async function deposit() {
         `Submitting ${formatEve(amount)} EVE deposit.\nApprove the transaction in Eve Vault…`
     );
 
-    $("deposit-button").disabled = true;
+    el("deposit-button").disabled =
+        true;
 
     try {
         const result =
             await signAndExecute(
-                wallet,
-                account,
+                currentWallet,
+                currentAccount,
                 tx
             );
 
@@ -293,9 +438,10 @@ async function deposit() {
         );
 
         const digest =
-            result?.digest ??
-            result?.effects?.transactionDigest ??
-            "unknown";
+            result?.digest
+            ?? result?.effects
+                ?.transactionDigest
+            ?? "unknown";
 
         setStatus(
             `SUCCESS\nDeposited ${formatEve(amount)} EVE.\nTransaction: ${digest}`,
@@ -303,18 +449,26 @@ async function deposit() {
         );
 
         await refreshBalances();
+
     } finally {
-        $("deposit-button").disabled = false;
+        el("deposit-button").disabled =
+            false;
     }
 }
 
-$("connect-button")
+
+// ---------------------------------------------------------
+// BUTTONS
+// ---------------------------------------------------------
+
+el("connect-button")
     .addEventListener(
         "click",
         connect
     );
 
-$("refresh-button")
+
+el("refresh-button")
     .addEventListener(
         "click",
         async () => {
@@ -329,6 +483,7 @@ $("refresh-button")
                     "Balances refreshed.",
                     "success"
                 );
+
             } catch (error) {
                 console.error(error);
 
@@ -341,12 +496,14 @@ $("refresh-button")
         }
     );
 
-$("deposit-button")
+
+el("deposit-button")
     .addEventListener(
         "click",
         async () => {
             try {
                 await deposit();
+
             } catch (error) {
                 console.error(error);
 
@@ -356,8 +513,9 @@ $("deposit-button")
                     "error"
                 );
 
-                $("deposit-button").disabled =
-                    false;
+                el(
+                    "deposit-button"
+                ).disabled = false;
             }
         }
     );
